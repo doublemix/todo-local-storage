@@ -4,11 +4,15 @@
   "description": "",
   "main": "index.html",
   "scripts": {
-    "serve": "http-server ."
+    "serve": "http-server .",
+    "grammar:build": "pegjs --format umd --export-var TimeTrackerParser -o js/time-tracker-parser.js js/time-tracker.pegjs"
   },
   "author": "Me",
   "license": "ISC",
   "dependencies": {
     "http-server": "^0.11.1"
+  },
+  "devDependencies": {
+    "pegjs": "^0.10.0"
   }
 }

@@ -182,3 +182,38 @@ window.addEventListener("focus", function(ev) {
 });
 
 loadItemsArray();
+
+// Time Tracker Stuff
+
+try {
+  (function() {
+    function runParser(value) {
+      const valueTrimmed = value.trim();
+      if (valueTrimmed === "") {
+        timeTrackerResult.textContent = "";
+        return;
+      }
+      try {
+        const result = TimeTrackerParser.parse(value);
+        timeTrackerResult.textContent = "Result: " + result;
+      } catch (err) {
+        timeTrackerResult.textContent = "Error: " + err.message;
+      }
+    }
+    const timeTrackerInput = document.getElementById("time-tracker-query");
+    const timeTrackerResult = document.getElementById("time-tracker-result");
+    const initialValue = localStorage.getItem("timeTrackerQuery");
+    if (initialValue !== null) {
+      timeTrackerInput.value = initialValue;
+      runParser(initialValue);
+    }
+    timeTrackerInput.addEventListener("input", function(event) {
+      const value = timeTrackerInput.value;
+      localStorage.setItem("timeTrackerQuery", value);
+      runParser(value);
+    });
+  })();
+} catch (err) {
+  console.warn(err);
+  // do nothing
+}
