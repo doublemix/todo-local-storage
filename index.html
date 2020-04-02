@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>New Tab App</title>
+
+    <link rel="stylesheet" href="css/main.css" />
+    <style type="text/css">
+      .remove-button {
+        display: none;
+      }
+      :hover > .remove-button {
+        display: inline-block;
+        height: 1.5em;
+        width: 1em;
+        padding-left: 2px;
+        background: #ddd;
+        color: #333;
+        border-radius: 2px;
+        align: baseline;
+        cursor: pointer;
+      }
+      li input[type="text"] {
+        border: 0px;
+        box-shadow: initial;
+        display: initial;
+        border-radius: initial;
+        padding: 0;
+        background: transparent;
+        margin-bottom: 0;
+        width: initial;
+        max-width: initial;
+        line-height: initial;
+      }
+
+      .flexy {
+        box-sizing: border-box;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="small-container">
+      <h1>New Tab App</h1>
+
+      <form id="form">
+        <input id="item" type="text" placeholder="New" required />
+      </form>
+
+      <h2>Items</h2>
+      <ul id="item-list"></ul>
+    <script src="js/scripts.js"></script>
+  </body>
+</html>

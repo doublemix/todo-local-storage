@@ -1,0 +1,14 @@
+{
+  "name": "todo-local-storage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "serve": "http-server ."
+  },
+  "author": "Me",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  }
+}
