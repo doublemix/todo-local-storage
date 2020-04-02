@@ -40,16 +40,23 @@
       }
       #item-list li:hover {
         background: #EEF;
+      }
 
       .flexy {
         box-sizing: border-box;
         border: 1px solid black;
       }
+      
+      #list-name-input {
+        width: 100%;
+      }
     </style>
   </head>
   <body>
     <div class="small-container">
-      <h1>New Tab App</h1>
+      <h1 id="list-name">New Tab App</h1>
+      <div><input id="list-name-input" /></div>
+      <div><select id="available-lists"></select></div>
 
       <form id="form">
         <input id="item" type="text" placeholder="New" required />
