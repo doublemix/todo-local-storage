@@ -12,18 +12,22 @@
         display: none;
       }
       :hover > .remove-button {
-        display: inline-block;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 100%;
         height: 1.5em;
         width: 1em;
-        padding-left: 2px;
         background: #ddd;
         color: #333;
         border-radius: 2px;
-        align: baseline;
         cursor: pointer;
+        text-align: center;
       }
-      li input[type="text"] {
-        border: 0px;
+      #item-list li {
+        position: relative;
+      }
+      #item-list li input[type="text"] {
         box-shadow: initial;
         display: initial;
         border-radius: initial;
@@ -34,6 +38,8 @@
         max-width: initial;
         line-height: initial;
       }
+      #item-list li:hover {
+        background: #EEF;
 
       .flexy {
         box-sizing: border-box;
