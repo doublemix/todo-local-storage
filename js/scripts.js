@@ -72,10 +72,30 @@ function liMaker(text, index) {
     itemsArray.moveItem(otherIndex, index);
   });
 
+  let editing = false;
   const textSpan = document.createElement("span");
   textSpan.textContent = text;
-  let editing = false;
-  textSpan.addEventListener("click", function() {
+  textSpan.contentEditable = true;
+  textSpan.addEventListener("keydown", function (event) {
+    if (event.keyCode === 13) {
+      event.preventDefault()
+      textSpan.blur()
+    }
+  })
+  textSpan.addEventListener("input", function (event) {
+    editing = true;
+    if (!li.classList.contains('editing')) {
+      li.classList.add('editing')
+    }
+  })
+  textSpan.addEventListener("blur", function (event) {
+    if (editing) {
+      itemsArray.update(index, event.target.textContent)
+      li.classList.remove('editing')
+      editing = false
+    }
+  })
+  /*textSpan.addEventListener("click", function() {
     if (editing) return;
     editing = true;
     const input = document.createElement("input");
@@ -94,7 +114,7 @@ function liMaker(text, index) {
       textSpan.removeChild(textSpan.firstChild);
     }
     textSpan.appendChild(input);
-  });
+  });*/
   const removeSpan = document.createElement("span");
   removeSpan.addEventListener("click", function(event) {
     itemsArray.remove(index);

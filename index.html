@@ -38,8 +38,12 @@
         max-width: initial;
         line-height: initial;
       }
-      #item-list li:hover {
+      #item-list li:hover:not(.editing) {
         background: #EEF;
+      }
+      #item-list li.editing {
+        background: #EFE;
+      }
 
       .flexy {
         box-sizing: border-box;
