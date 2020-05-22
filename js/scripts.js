@@ -104,26 +104,6 @@ function liMaker(text, index) {
       editing = false
     }
   })
-  /*textSpan.addEventListener("click", function() {
-    if (editing) return;
-    editing = true;
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = text;
-    input.style.width = (textSpan.offsetWidth + 3).toString() + "px";
-    input.addEventListener("blur", function() {
-      itemsArray.update(index, input.value);
-      editing = false;
-    });
-    setTimeout(function() {
-      input.focus();
-    }, 1);
-
-    while (textSpan.firstChild) {
-      textSpan.removeChild(textSpan.firstChild);
-    }
-    textSpan.appendChild(input);
-  });*/
   const removeSpan = document.createElement("span");
   removeSpan.addEventListener("click", function(event) {
     itemsArray.remove(index);
