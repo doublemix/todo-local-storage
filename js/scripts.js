@@ -37,6 +37,9 @@ function simpleArrayObservable(inArray) {
       array = [];
       ob.update(array);
     },
+    refresh() {
+      ob.update(array);
+    },
     observe(observer) {
       ob.observe(observer);
       observer(array);
@@ -78,7 +81,9 @@ function liMaker(text, index) {
   textSpan.addEventListener("keydown", function (event) {
     if (event.keyCode === 13) {
       event.preventDefault()
-      textSpan.blur()
+      if (textSpan.textContent.trim() !== '') {
+        textSpan.blur()
+      }
     }
   })
   textSpan.addEventListener("input", function (event) {
@@ -89,7 +94,12 @@ function liMaker(text, index) {
   })
   textSpan.addEventListener("blur", function (event) {
     if (editing) {
-      itemsArray.update(index, event.target.textContent)
+      const content = event.target.textContent.trim()
+      if (content !== '') {
+        itemsArray.update(index, content)
+      } else {
+        itemsArray.refresh()
+      }
       li.classList.remove('editing')
       editing = false
     }
