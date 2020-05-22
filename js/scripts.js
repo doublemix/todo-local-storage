@@ -1,6 +1,5 @@
-const form = document.getElementById("form");
 const ul = document.getElementById("item-list");
-const input = document.getElementById("item");
+const input = document.getElementById("new-item-input");
 
 function simpleArrayObservable(inArray) {
   const ob = observable();
@@ -127,12 +126,19 @@ function liMaker(text, index) {
   li.appendChild(removeSpan);
 }
 
-form.addEventListener("submit", function(e) {
-  e.preventDefault();
+input.addEventListener("keydown", function (event) {
+  if (event.keyCode === 13) {
+    event.preventDefault()
+    // submit new item
+    const content = input.textContent.trim()
 
-  itemsArray.unshift(input.value);
-  input.value = "";
-});
+    if (content !== "") {
+      itemsArray.unshift(content);
+      input.textContent = "";
+      input.blur()
+    }
+  }
+})
 
 function observable() {
   let observers = [];
