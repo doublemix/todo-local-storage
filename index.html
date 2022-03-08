@@ -63,6 +63,12 @@
       #new-item-input {
         outline: none;
       }
+      #time-tracker-query {
+        font-family: sans-serif;
+      }
+      #time-tracker-result {
+        white-space: pre;
+      }
     </style>
   </head>
   <body>
@@ -78,11 +84,12 @@
 
       <h2>Time Tracker</h2>
       <div>
-        <input
+        <textarea
           id="time-tracker-query"
           type="text"
           placholder="8:00 + 4:00 - 3:30"
-        />
+          rows="10"
+        ></textarea>
       </div>
       <div><span id="time-tracker-result"></span></div>
     </div>
