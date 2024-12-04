@@ -15,6 +15,79 @@
     }
     return workStr
   }
+  function tryCall(f, ...args) {
+    if (f instanceof Function) {
+      return f(...args)
+    }
+    throw new Error('not a function')
+  }
+  function dispatchType (fTime, fDuration, fScalar, fUnknown) {
+    return (val) => {
+      if (isVector(val)) {
+        if (isClose(val[1], DURATION)) {
+          return tryCall(fDuration, val[0])
+        } else if (isClose(val[1], TIME)) {
+          return tryCall(fTime, val[0])
+        } else {
+          return tryCall(fUnknown, val[0], val[1])
+        }
+      }
+      return tryCall(fScalar, val)
+    }
+  }
+  function getHoursComponent (minutesValue) {
+    return Math.floor(minutesValue / 60)
+  }
+  function getMinutesComponent (minutesValue) {
+    return minutesValue % 60
+  }
+  const padded = (value, count, input) => {
+    let inputString = input.toString()
+    while (inputString.length < count) {
+      inputString = value + inputString
+    }
+    return inputString
+  }
+  const getHours = dispatchType(
+    time => getHoursComponent(time) % 24, // TODO handle negative
+    duration => getHoursComponent(duration),
+  )
+  const get12Hours = dispatchType(
+    time => {
+      let hours = getHoursComponent(time) % 12
+      if (hours < 1) {
+        return 12
+      }
+      return hours
+    },
+    duration => getHoursComponent(duration),
+  )
+  const isAm = dispatchType(
+    time => {
+      let hours24 = getHoursComponent(time) % 24 // TODO negative
+      return hours24 >= 1 && hours24 <= 12
+    }
+  )
+  const getPartialMinutes = dispatchType(
+    time => getMinutesComponent(time), // TODO handle negative
+    duration => getMinutesComponent(duration), //  TODO handle negative?
+  )
+  const getMinutes = dispatchType(
+    time => time,
+    duration => duration,
+  )
+  function getIndicatedValue (x, on) {
+    if (on === 'H') {
+      return getHours(x)
+    }
+    if (on === 'M') {
+      return getPartialMinutes(x)
+    }
+    if (on === 'T') {
+      return getMinutes(x)
+    }
+    throw new Error("i don't know")
+  }
   const formatTime = (mins) => {
     const isNegative = mins < 0;
     const absMins = Math.abs(mins);
@@ -142,7 +215,10 @@
 
 Main
   = _ result:EquationList _ display:DisplayOpts _ !. {
-    return display.map(formatter => formatter(result)).join('; ')
+    return {
+      display: display.map(formatter => formatter(result)).join('; '),
+      isNow: !!vars['now'],
+    }
   }
 
 DisplayOpts
@@ -180,8 +256,8 @@ DisplayString
   }
 
 DisplayStringElement
-  = '$' id:Id ';'? {
-    return () => id in vars ? `${format(vars[id])}` : `$${id};`
+  = '$' id:Id displayFormat:(DisplayFormat / !'(' { return null }) ';'? {
+    return () => id in vars ? displayFormat ? displayFormat(vars[id]) : `${format(vars[id])}` : `$${id};`
   }
   / '$' '$' {
     return () => '$'
@@ -193,6 +269,65 @@ DisplayStringElement
     const value = cs.join('')
     return () => value
   }
+
+DisplayFormat
+  = '(' f:DisplayFormatString ')' {
+    return f
+  }
+
+DisplayFormatString
+  = els:DisplayFormatStringElement* {
+    return x => els.map(f => f(x)).join('')
+  }
+
+DisplayFormatStringElement
+  = hs:'H'+ { return x => padded('0', hs.length, getHours(x).toString()) }
+  / hs:'h'+ { return x => padded('0', hs.length, get12Hours(x).toString()) }
+  / ms:'m'+ { return x => padded('0', ms.length, getPartialMinutes(x).toString()) }
+  / ms:'M'+ { return x => padded('0', ms.length, getMinutes(x).toString()) }
+  / '\\' c:. { return x => c }
+  / 'Z' on:[HMT] format:DisplayFormat {
+    return x => {
+      var value = getIndicatedValue(x, on)
+      if (value !== 0) {
+        return format(x)
+      }
+      return ''
+    }
+  }
+  / 'z' on:[HMT] format:DisplayFormat {
+    return x => {
+      var value = getIndicatedValue(x, on)
+      if (value === 0) {
+        return format(x)
+      }
+      return ''
+    }
+  }
+  / [AP] { return x => isAm(x) ? 'AM' : 'PM' }
+  / 'S' on:[HMT] format:DisplayFormat {
+    return x => {
+      var value = getIndicatedValue(x, on)
+      if (value !== 1) {
+        return format(x)
+      }
+      return ''
+    }
+  }
+  / 's' on:[HMT] format:DisplayFormat {
+    return x => {
+      var value = getIndicatedValue(x, on)
+      if (value === 1) {
+        return format(x)
+      }
+      return ''
+    }
+  }
+  / '{' cs:[^{}]* '}' {
+    const c = cs.join('')
+    return x => c
+  }
+  / c:[^a-zA-Z(){}] { return x => c }
 
 DisplayStringCharacter
   = ![$"] c:. { return c }
@@ -229,10 +364,11 @@ Equation
   }
 
 Expression
-  = head:Term tail:(_ op:("+" / "-") _ term:Term { return { term, op } })* {
+  = head:Term tail:(_ op:("+" / "-" / "~") _ term:Term { return { term, op } })* {
       return tail.reduce(function(result, element) {
         if (element.op === "+") { return add(result, element.term); }
         if (element.op === "-") { return sub(result, element.term); }
+        if (element.op === "~") { return sub(element.term, result); }
       }, head);
     }
 
@@ -256,6 +392,13 @@ Factor
     return value
   }
   / id:Id {
+    if (id == 'now') {
+      var now = new Date()
+      var hours = now.getHours()
+      var minutes = now.getMinutes()
+      vars['now'] = true
+      return [hours * 60 + minutes, TIME]
+    }
     if (id in vars) {
       return vars[id]
     }
@@ -320,5 +463,3 @@ _ "whitespace"
 
 Comment
   = '//' [^\n]* '\n'
-
-

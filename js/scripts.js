@@ -62,13 +62,13 @@ function liMaker(text, index) {
   const li = document.createElement("li");
   ul.appendChild(li);
   li.draggable = true;
-  li.addEventListener("dragstart", function(ev) {
+  li.addEventListener("dragstart", function (ev) {
     ev.dataTransfer.setData("index", index);
   });
-  li.addEventListener("dragover", function(ev) {
+  li.addEventListener("dragover", function (ev) {
     ev.preventDefault();
   });
-  li.addEventListener("drop", function(ev) {
+  li.addEventListener("drop", function (ev) {
     ev.preventDefault();
     const otherIndex = +ev.dataTransfer.getData("index");
     itemsArray.moveItem(otherIndex, index);
@@ -105,7 +105,7 @@ function liMaker(text, index) {
     }
   })
   const removeSpan = document.createElement("span");
-  removeSpan.addEventListener("click", function(event) {
+  removeSpan.addEventListener("click", function (event) {
     itemsArray.remove(index);
   });
   removeSpan.className = "remove-button";
@@ -135,7 +135,7 @@ function observable() {
   return {
     observe(observer) {
       observers.push(observer);
-      return function() {
+      return function () {
         observers = observers.filter(iObserver => iObserver !== observer);
       };
     },
@@ -152,7 +152,7 @@ function arrayShallowEquals(this1, that1) {
   );
 }
 
-itemsArray.observe(function(items) {
+itemsArray.observe(function (items) {
   while (ul.firstChild) {
     ul.removeChild(ul.firstChild);
   }
@@ -172,12 +172,12 @@ itemsArray.observe(function(items) {
   localStorage.setItem("items", JSON.stringify(items));
 });
 
-window.addEventListener("storage", function(ev) {
+window.addEventListener("storage", function (ev) {
   if (ev.key === "items") {
     loadItemsArray();
   }
 });
-window.addEventListener("focus", function(ev) {
+window.addEventListener("focus", function (ev) {
   loadItemsArray();
 });
 
@@ -186,8 +186,10 @@ loadItemsArray();
 // Time Tracker Stuff
 
 try {
-  (function() {
+  (function () {
+    let parserTimeoutId = null
     function runParser(value) {
+      clearTimeout(parserTimeoutId)
       const valueTrimmed = value.trim();
       if (valueTrimmed === "") {
         timeTrackerResult.textContent = "";
@@ -195,9 +197,13 @@ try {
       }
       try {
         const result = TimeTrackerParser.parse(value);
-        timeTrackerResult.textContent = "Result: " + result;
+        timeTrackerResult.textContent = result.display;
+        if (result.isNow) {
+          parserTimeoutId = setTimeout(runParser.bind(undefined, value), 10000)
+        }
       } catch (err) {
         timeTrackerResult.textContent = "Error: " + err.message;
+        console.error(err)
       }
     }
     const timeTrackerInput = document.getElementById("time-tracker-query");
@@ -207,7 +213,7 @@ try {
       timeTrackerInput.value = initialValue;
       runParser(initialValue);
     }
-    timeTrackerInput.addEventListener("input", function(event) {
+    timeTrackerInput.addEventListener("input", function (event) {
       const value = timeTrackerInput.value;
       localStorage.setItem("timeTrackerQuery", value);
       runParser(value);
